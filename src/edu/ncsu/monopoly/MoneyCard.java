@@ -2,14 +2,13 @@ package edu.ncsu.monopoly;
 
 public class MoneyCard extends Card {
     private int amount;
-    private int cardType;
     
     private String label;
     
     public MoneyCard(String label, int amount, int cardType){
         this.label = label;
         this.amount = amount;
-        this.cardType = cardType;
+        this.type = cardType;
     }
 
     public void applyAction() {
@@ -17,9 +16,6 @@ public class MoneyCard extends Card {
 		currentPlayer.setMoney(currentPlayer.getMoney() + amount);
     }
 
-    public int getCardType() {
-        return cardType;
-    }
 
     public String getLabel() {
         return label;

@@ -4,8 +4,6 @@ package edu.ncsu.monopoly;
 public class MovePlayerCard extends Card {
     
     private String destination;
-    private int type;
-
     public MovePlayerCard(String destination, int cardType) {
         this.destination = destination;
         this.type = cardType;
