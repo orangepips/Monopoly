@@ -27,27 +27,40 @@ public class Player {
 
     public void buyProperty(IOwnable property, int amount) {
         property.setOwner(this);
-        if(property instanceof PropertyCell) {
+        verifyPropertyCell(property);
+        verifyRailRoadCell(property);
+        verifyUtilityCell(property);
+        setMoney(getMoney() - amount);
+    }
+
+	private void verifyUtilityCell(IOwnable property) {
+		if(property instanceof UtilityCell) {
+            utilities.add(property);
+            colorGroups.put(
+                    UtilityCell.COLOR_GROUP, 
+                    new Integer(getPropertyNumberForColor(UtilityCell.COLOR_GROUP)+1));
+        }
+	}
+
+
+	private void verifyRailRoadCell(IOwnable property) {
+		if(property instanceof RailRoadCell) {
+            railroads.add(property);
+            colorGroups.put(
+                    RailRoadCell.COLOR_GROUP, 
+                    new Integer(getPropertyNumberForColor(RailRoadCell.COLOR_GROUP)+1));
+        }
+	}
+
+	private void verifyPropertyCell(IOwnable property) {
+		if(property instanceof PropertyCell) {
             PropertyCell cell = (PropertyCell)property;
             properties.add(cell);
             colorGroups.put(
                     cell.getColorGroup(), 
                     new Integer(getPropertyNumberForColor(cell.getColorGroup())+1));
         }
-        if(property instanceof RailRoadCell) {
-            railroads.add(property);
-            colorGroups.put(
-                    RailRoadCell.COLOR_GROUP, 
-                    new Integer(getPropertyNumberForColor(RailRoadCell.COLOR_GROUP)+1));
-        }
-        if(property instanceof UtilityCell) {
-            utilities.add(property);
-            colorGroups.put(
-                    UtilityCell.COLOR_GROUP, 
-                    new Integer(getPropertyNumberForColor(UtilityCell.COLOR_GROUP)+1));
-        }
-        setMoney(getMoney() - amount);
-    }
+	}
 	
 	public boolean canBuyHouse() {
 		return (getMonopolies().length != 0);
