@@ -1,21 +1,13 @@
 package edu.ncsu.monopoly.gui;
 
 import java.awt.*;
-import java.awt.Container;
-import java.awt.GridLayout;
 import java.awt.event.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.*;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
 
 import edu.ncsu.monopoly.*;
-import edu.ncsu.monopoly.TradeDeal;
-import edu.ncsu.monopoly.TradeDialog;
 
 public class GUITradeDialog extends JDialog implements TradeDialog {
     private JButton btnOK, btnCancel;
@@ -107,7 +99,7 @@ public class GUITradeDialog extends JDialog implements TradeDialog {
 
     private void updatePropertiesCombo(Player player) {
         cboProperties.removeAllItems();
-        Cell[] cells = player.getAllProperties();
+        IOwnable[] cells = player.getAllProperties();
         btnOK.setEnabled(cells.length > 0);
         for (int i = 0; i < cells.length; i++) {
             cboProperties.addItem(cells[i]);
