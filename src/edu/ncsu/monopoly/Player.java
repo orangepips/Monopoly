@@ -27,40 +27,28 @@ public class Player {
 
     public void buyProperty(IOwnable property, int amount) {
         property.setOwner(this);
-        verifyPropertyCell(property);
-        verifyRailRoadCell(property);
-        verifyUtilityCell(property);
-        setMoney(getMoney() - amount);
-    }
-
-	private void verifyUtilityCell(IOwnable property) {
-		if(property instanceof UtilityCell) {
+        if(property instanceof UtilityCell) {
             utilities.add(property);
             colorGroups.put(
                     UtilityCell.COLOR_GROUP, 
                     new Integer(getPropertyNumberForColor(UtilityCell.COLOR_GROUP)+1));
         }
-	}
-
-
-	private void verifyRailRoadCell(IOwnable property) {
-		if(property instanceof RailRoadCell) {
+        if(property instanceof RailRoadCell) {
             railroads.add(property);
             colorGroups.put(
                     RailRoadCell.COLOR_GROUP, 
                     new Integer(getPropertyNumberForColor(RailRoadCell.COLOR_GROUP)+1));
         }
-	}
-
-	private void verifyPropertyCell(IOwnable property) {
-		if(property instanceof PropertyCell) {
+        if(property instanceof PropertyCell) {
             PropertyCell cell = (PropertyCell)property;
             properties.add(cell);
             colorGroups.put(
                     cell.getColorGroup(), 
                     new Integer(getPropertyNumberForColor(cell.getColorGroup())+1));
         }
-	}
+        setMoney(getMoney() - amount);
+    }
+
 	
 	public boolean canBuyHouse() {
 		return (getMonopolies().length != 0);
@@ -210,7 +198,7 @@ public class Player {
 	public void purchaseHouse(String selectedMonopoly, int houses) {
 		GameBoard gb = GameMaster.instance().getGameBoard();
 		PropertyCell[] cells = gb.getPropertiesInMonopoly(selectedMonopoly);
-		if((money >= (cells.length * (cells[0].getHousePrice() * houses)))) {
+		if(hasMoney(houses, cells)) {
 			for(int i = 0; i < cells.length; i++) {
 				int newNumber = cells[i].getNumHouses() + houses;
 				if (newNumber <= 5) {
@@ -220,6 +208,10 @@ public class Player {
 				}
 			}
 		}
+	}
+
+	private boolean hasMoney(int houses, PropertyCell[] cells) {
+		return money >= (cells.length * (cells[0].getHousePrice() * houses));
 	}
 	
 	private void purchaseProperty(PropertyCell cell) {
