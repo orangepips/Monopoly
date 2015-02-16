@@ -1,7 +1,9 @@
 package edu.ncsu.monopoly;
 
 public abstract class Card {
-
+	/*
+	 * Pulled up type variable and getCardType to abstract class, removed cardType variable in MoneyCard
+	 */
     public static int TYPE_CHANCE = 1;
     public static int TYPE_CC = 2;
 	protected int type;
