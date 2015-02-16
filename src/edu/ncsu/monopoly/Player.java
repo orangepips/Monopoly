@@ -27,7 +27,12 @@ public class Player {
 
     public void buyProperty(IOwnable property, int amount) {
         property.setOwner(this);
-        if(property instanceof UtilityCell) {
+        verifyProperty(property);
+        setMoney(getMoney() - amount);
+    }
+
+	private void verifyProperty(IOwnable property) {
+		if(property instanceof UtilityCell) {
             utilities.add(property);
             colorGroups.put(
                     UtilityCell.COLOR_GROUP, 
@@ -46,8 +51,7 @@ public class Player {
                     cell.getColorGroup(), 
                     new Integer(getPropertyNumberForColor(cell.getColorGroup())+1));
         }
-        setMoney(getMoney() - amount);
-    }
+	}
 
 	
 	public boolean canBuyHouse() {
