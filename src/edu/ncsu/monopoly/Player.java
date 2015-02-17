@@ -27,11 +27,11 @@ public class Player {
 
     public void buyProperty(IOwnable property, int amount) {
         property.setOwner(this);
-        verifyProperty(property);
+        verifyPurchaseProperty(property);
         setMoney(getMoney() - amount);
     }
 
-	private void verifyProperty(IOwnable property) {
+	private void verifyPurchaseProperty(IOwnable property) {
 		if(property instanceof UtilityCell) {
             utilities.add(property);
             colorGroups.put(
