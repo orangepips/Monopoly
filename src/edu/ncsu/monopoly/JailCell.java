@@ -10,4 +10,16 @@ public class JailCell extends Cell {
 	public void playAction() {
 		
 	}
+
+	@Override
+	public Player getOwner() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setOwner(Player owner) {
+		// TODO Auto-generated method stub
+		
+	}
 }

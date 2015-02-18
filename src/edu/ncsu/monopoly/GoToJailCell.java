@@ -11,4 +11,16 @@ public class GoToJailCell extends Cell {
 		JailCell jail = (JailCell)(GameMaster.instance().getGameBoard().queryCell("Jail"));
 		GameMaster.instance().sendToJail(currentPlayer);
 	}
+
+	@Override
+	public Player getOwner() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setOwner(Player owner) {
+		// TODO Auto-generated method stub
+		
+	}
 }
