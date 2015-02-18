@@ -46,9 +46,13 @@ public class PropertyCell extends Cell {
 		Player currentPlayer = null;
 		if(!isAvailable()) {
 			currentPlayer = GameMaster.instance().getCurrentPlayer();
-			if(owner != currentPlayer) {
-				currentPlayer.payRentTo(owner, getRent());
-			}
+			payRent(currentPlayer);
+		}
+	}
+
+	private void payRent(Player currentPlayer) {
+		if(owner != currentPlayer) {
+			currentPlayer.payRentTo(owner, getRent());
 		}
 	}
 
