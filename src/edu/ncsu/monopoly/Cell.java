@@ -1,7 +1,6 @@
 package edu.ncsu.monopoly;
 
 public abstract class Cell implements IOwnable {
-	private boolean available = true;
 	private String name;
 	protected Player owner;
 
@@ -21,16 +20,8 @@ public abstract class Cell implements IOwnable {
 		return 0;
 	}
 
-	public boolean isAvailable() {
-		return available;
-	}
-	
 	public abstract void playAction();
 
-	public void setAvailable(boolean available) {
-		this.available = available;
-	}
-	
 	void setName(String name) {
 		this.name = name;
 	}

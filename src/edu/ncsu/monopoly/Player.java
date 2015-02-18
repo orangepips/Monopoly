@@ -181,9 +181,10 @@ public class Player {
 	}
 	
 	public void purchase() {
-		if(getPosition().isAvailable()) {
+	if(getPosition() instanceof OwnedCell){
+		if(((OwnedCell) getPosition()).isAvailable()) {
 			Cell c = getPosition();
-			c.setAvailable(false);
+			((OwnedCell) c).setAvailable(false);
 			if(c instanceof PropertyCell) {
 				PropertyCell cell = (PropertyCell)c;
 				purchaseProperty(cell);
@@ -197,6 +198,7 @@ public class Player {
 				purchaseUtility(cell);
 			}
 		}
+	}
 	}
 	
 	public void purchaseHouse(String selectedMonopoly, int houses) {
