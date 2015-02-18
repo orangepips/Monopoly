@@ -104,7 +104,7 @@ public class Player {
 		Enumeration colors = colorGroups.keys();
 		while(colors.hasMoreElements()) {
 			String color = (String)colors.nextElement();
-            if(!(color.equals(RailRoadCell.COLOR_GROUP)) && !(color.equals(UtilityCell.COLOR_GROUP))) {
+            if(isPropertyCell(color)) {
     			Integer num = (Integer)colorGroups.get(color);
     			GameBoard gameBoard = GameMaster.instance().getGameBoard();
     			if(num.intValue() == gameBoard.getPropertyNumberForColor(color)) {
@@ -113,6 +113,10 @@ public class Player {
             }
 		}
 		return (String[])monopolies.toArray(new String[monopolies.size()]);
+	}
+
+	private boolean isPropertyCell(String color) {
+		return !(color.equals(RailRoadCell.COLOR_GROUP)) && !(color.equals(UtilityCell.COLOR_GROUP));
 	}
 
 	public String getName() {

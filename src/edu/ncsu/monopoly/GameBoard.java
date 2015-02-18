@@ -64,15 +64,21 @@ public class GameBoard {
 		int counter = 0;
 		for (int i = 0; i < getCellNumber(); i++) {
 			IOwnable c = getCell(i);
-			if(c instanceof PropertyCell) {
-				PropertyCell pc = (PropertyCell)c;
-				if(pc.getColorGroup().equals(color)) {
-					monopolyCells[counter] = pc;
-					counter++;
-				}
-			}
+			counter = getCounter(color, monopolyCells, counter, c);
 		}
 		return monopolyCells;
+	}
+
+	private int getCounter(String color, PropertyCell[] monopolyCells,
+			int counter, IOwnable c) {
+		if(c instanceof PropertyCell) {
+			PropertyCell pc = (PropertyCell)c;
+			if(pc.getColorGroup().equals(color)) {
+				monopolyCells[counter] = pc;
+				counter++;
+			}
+		}
+		return counter;
 	}
 	
 	public int getPropertyNumberForColor(String name) {
