@@ -1,6 +1,6 @@
 package edu.ncsu.monopoly;
 
-public class RailRoadCell extends Cell {
+public class RailRoadCell extends OwnedCell {
 	static private int baseRent;
 	static public String COLOR_GROUP = "RAILROAD";
 	static private int price;
