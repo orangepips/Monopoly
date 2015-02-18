@@ -25,9 +25,13 @@ public class RailRoadCell extends OwnedCell {
 		Player currentPlayer = null;
 		if(!isAvailable()) {
 			currentPlayer = GameMaster.instance().getCurrentPlayer();
-			if(owner != currentPlayer) {
-				currentPlayer.payRentTo(owner, getRent());
-			}
+			checkOwnership(currentPlayer);
+		}
+	}
+
+	private void checkOwnership(Player currentPlayer) {
+		if(owner != currentPlayer) {
+			currentPlayer.payRentTo(owner, getRent());
 		}
 	}
 }
