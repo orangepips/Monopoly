@@ -69,6 +69,10 @@ public class GameMaster {
 
     public void btnGetOutOfJailClicked() {
 		getCurrentPlayer().getOutOfJail();
+		setAllButtonsDisabled();
+    }
+
+	private void setAllButtonsDisabled() {
 		if(getCurrentPlayer().isBankrupt()) {
 			gui.setBuyHouseEnabled(false);
 			gui.setDrawCardEnabled(false);
@@ -83,7 +87,7 @@ public class GameMaster {
 			gui.setBuyHouseEnabled(getCurrentPlayer().canBuyHouse());
 			gui.setGetOutOfJailEnabled(getCurrentPlayer().isInJail());
 		}
-    }
+	}
 
     public void btnPurchasePropertyClicked() {
         Player player = getCurrentPlayer();
