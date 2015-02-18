@@ -2,3 +2,7 @@
 *.class
 
 
+
+bin/edu/ncsu/monopoly/GameMaster.class
+
+*.class
