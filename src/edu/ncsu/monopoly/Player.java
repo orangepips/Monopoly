@@ -189,20 +189,32 @@ public class Player {
 		if(((OwnedCell) getPosition()).isAvailable()) {
 			Cell c = getPosition();
 			((OwnedCell) c).setAvailable(false);
-			if(c instanceof PropertyCell) {
-				PropertyCell cell = (PropertyCell)c;
-				purchaseProperty(cell);
-			}
-			if(c instanceof RailRoadCell) {
-				RailRoadCell cell = (RailRoadCell)c;
-				purchaseRailRoad(cell);
-			}
-			if(c instanceof UtilityCell) {
-				UtilityCell cell = (UtilityCell)c;
-				purchaseUtility(cell);
-			}
+			isPropertyCell(c);
+			isRailRoadCell(c);
+			isUtilityCell(c);
 		}
 	}
+	}
+
+	private void isUtilityCell(Cell c) {
+		if(c instanceof UtilityCell) {
+			UtilityCell cell = (UtilityCell)c;
+			purchaseUtility(cell);
+		}
+	}
+
+	private void isRailRoadCell(Cell c) {
+		if(c instanceof RailRoadCell) {
+			RailRoadCell cell = (RailRoadCell)c;
+			purchaseRailRoad(cell);
+		}
+	}
+
+	private void isPropertyCell(Cell c) {
+		if(c instanceof PropertyCell) {
+			PropertyCell cell = (PropertyCell)c;
+			purchaseProperty(cell);
+		}
 	}
 	
 	public void purchaseHouse(String selectedMonopoly, int houses) {
