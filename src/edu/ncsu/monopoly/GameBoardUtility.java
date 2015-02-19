@@ -10,8 +10,8 @@ public class GameBoardUtility extends GameBoard {
 		JailCell jail = new JailCell();
 		GoToJailCell goToJail = new GoToJailCell();
 		FreeParkingCell freeParking = new FreeParkingCell();
-		RailRoadCell rr1 = new RailRoadCell();
-		RailRoadCell rr3 = new RailRoadCell();
+		OwnedCell rr1 = new RailRoadCell();
+		OwnedCell rr3 = new RailRoadCell();
 		UtilityCell u1 = new UtilityCell();
 		UtilityCell u2 = new UtilityCell();
 		

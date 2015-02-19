@@ -7,7 +7,7 @@ public class GameBoardFull extends GameBoard {
         CardCell cc1 = new CardCell(Card.TYPE_CC, "Community Chest 1");
         PropertyCell dp2 = new PropertyCell();
         PropertyCell dp3 = new PropertyCell();
-        RailRoadCell rr1 = new RailRoadCell();
+        OwnedCell rr1 = new RailRoadCell();
         PropertyCell lb1 = new PropertyCell();
         CardCell c1 = new CardCell(Card.TYPE_CHANCE, "Chance 1");
         PropertyCell lb2 = new PropertyCell();
@@ -17,7 +17,7 @@ public class GameBoardFull extends GameBoard {
         UtilityCell u1 = new UtilityCell();
         PropertyCell p2 = new PropertyCell();
         PropertyCell p3 = new PropertyCell();
-        RailRoadCell rr2 = new RailRoadCell();
+        OwnedCell rr2 = new RailRoadCell();
         PropertyCell o1 = new PropertyCell();
         CardCell cc2 = new CardCell(Card.TYPE_CC, "Community Chest 2");
         PropertyCell o2 = new PropertyCell();
@@ -27,7 +27,7 @@ public class GameBoardFull extends GameBoard {
         CardCell c2 = new CardCell(Card.TYPE_CHANCE, "Chance 2");
         PropertyCell r2 = new PropertyCell();
         PropertyCell r3 = new PropertyCell();
-        RailRoadCell rr3 = new RailRoadCell();
+        OwnedCell rr3 = new RailRoadCell();
         PropertyCell y1 = new PropertyCell();
         PropertyCell y2 = new PropertyCell();
         UtilityCell u2 = new UtilityCell();
@@ -37,7 +37,7 @@ public class GameBoardFull extends GameBoard {
         PropertyCell g2 = new PropertyCell();
         CardCell cc3 = new CardCell(Card.TYPE_CC, "Community Chest 3");
         PropertyCell g3 = new PropertyCell();
-        RailRoadCell rr4 = new RailRoadCell();
+        OwnedCell rr4 = new RailRoadCell();
         CardCell c3 = new CardCell(Card.TYPE_CHANCE, "Chance 3");
         PropertyCell db1 = new PropertyCell();
         PropertyCell db2 = new PropertyCell();

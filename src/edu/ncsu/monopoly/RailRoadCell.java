@@ -29,7 +29,7 @@ public class RailRoadCell extends OwnedCell {
 		}
 	}
 
-	private void checkOwnership(Player currentPlayer) {
+	public void checkOwnership(Player currentPlayer) {
 		if(owner != currentPlayer) {
 			currentPlayer.payRentTo(owner, getRent());
 		}

@@ -10,10 +10,10 @@ public class GameBoardRailRoad extends GameBoard {
 		JailCell jail = new JailCell();
 		GoToJailCell goToJail = new GoToJailCell();
 		FreeParkingCell freeParking = new FreeParkingCell();
-		RailRoadCell rr1 = new RailRoadCell();
-		RailRoadCell rr2 = new RailRoadCell();
-		RailRoadCell rr3 = new RailRoadCell();
-		RailRoadCell rr4 = new RailRoadCell();
+		OwnedCell rr1 = new RailRoadCell();
+		OwnedCell rr2 = new RailRoadCell();
+		OwnedCell rr3 = new RailRoadCell();
+		OwnedCell rr4 = new RailRoadCell();
 		
 		blue1.setName("Blue 1");
 		blue2.setName("Blue 2");

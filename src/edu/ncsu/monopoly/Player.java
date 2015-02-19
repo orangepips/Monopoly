@@ -205,7 +205,7 @@ public class Player {
 
 	private void isRailRoadCell(Cell c) {
 		if(c instanceof RailRoadCell) {
-			RailRoadCell cell = (RailRoadCell)c;
+			OwnedCell cell = (OwnedCell)c;
 			purchaseRailRoad(cell);
 		}
 	}
@@ -240,7 +240,7 @@ public class Player {
         buyProperty(cell, cell.getPrice());
 	}
 
-	private void purchaseRailRoad(RailRoadCell cell) {
+	private void purchaseRailRoad(OwnedCell cell) {
 	    buyProperty(cell, cell.getPrice());
 	}
 
