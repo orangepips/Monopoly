@@ -35,63 +35,35 @@ public class PlayerPanel extends JPanel {
     public PlayerPanel(Player player) {
         JPanel pnlAction = new JPanel();
         JPanel pnlInfo = new JPanel();
-        btnRollDice = new JButton("Roll Dice");
-        btnPurchaseProperty = new JButton("Purchase Property");
-        btnEndTurn = new JButton("End Turn");
-        btnBuyHouse = new JButton("Buy House");
-        btnGetOutOfJail = new JButton("Get Out of Jail");
-        btnDrawCard = new JButton("Draw Card");
-        btnTrade = new JButton("Trade");
+        initBtn();
         this.player = player;
-        lblName = new JLabel();
-        lblMoney = new JLabel();
-        txtProperty = new JTextArea(30, 70);
-
-        txtProperty.setEnabled(false);
+        initLabel();
+        initTxtProperty();
 
         JPanel pnlName = new JPanel();
         JPanel pnlProperties = new JPanel();
 
-        pnlInfo.setLayout(new BorderLayout());
-        pnlInfo.add(pnlName, BorderLayout.NORTH);
-        pnlInfo.add(pnlProperties, BorderLayout.CENTER);
+        initPnlInfo(pnlInfo, pnlName, pnlProperties);
+        initPnlName(pnlName);
+        initPnlProperties(pnlProperties);
 
-        pnlProperties.setLayout(new OverlayLayout(pnlProperties));
+        initPnlAction(pnlAction);
 
-        pnlName.add(lblName);
-        pnlName.add(lblMoney);
-        pnlProperties.add(txtProperty);
-
-        pnlAction.setLayout(new GridLayout(3, 3));
-        pnlAction.add(btnBuyHouse);
-        pnlAction.add(btnRollDice);
-        pnlAction.add(btnPurchaseProperty);
-        pnlAction.add(btnGetOutOfJail);
-        pnlAction.add(btnEndTurn);
-        pnlAction.add(btnDrawCard);
-        pnlAction.add(btnTrade);
-
-        pnlAction.doLayout();
-        pnlInfo.doLayout();
-        pnlName.doLayout();
-        pnlProperties.doLayout();
-        this.doLayout();
+        initDoLayout(pnlAction, pnlInfo, pnlName, pnlProperties);
 
         setLayout(new BorderLayout());
         add(pnlInfo, BorderLayout.CENTER);
         add(pnlAction, BorderLayout.SOUTH);
 
-        btnRollDice.setEnabled(false);
-        btnPurchaseProperty.setEnabled(false);
-        btnEndTurn.setEnabled(false);
-        btnBuyHouse.setEnabled(false);
-        btnGetOutOfJail.setEnabled(false);
-        btnDrawCard.setEnabled(false);
-        btnTrade.setEnabled(false);
+        disableBtns();
 
         setBorder(new BevelBorder(BevelBorder.RAISED));
 
-        btnRollDice.addActionListener(new ActionListener() {
+        initBtnListeners();
+    }
+
+	private void initBtnListeners() {
+		btnRollDice.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 GameMaster.instance().btnRollDiceClicked();
             }
@@ -135,7 +107,77 @@ public class PlayerPanel extends JPanel {
                 GameMaster.instance().btnTradeClicked();
             }
         });
-    }
+	}
+
+	private void disableBtns() {
+		btnRollDice.setEnabled(false);
+        btnPurchaseProperty.setEnabled(false);
+        btnEndTurn.setEnabled(false);
+        btnBuyHouse.setEnabled(false);
+        btnGetOutOfJail.setEnabled(false);
+        btnDrawCard.setEnabled(false);
+        btnTrade.setEnabled(false);
+	}
+
+	private void initDoLayout(JPanel pnlAction, JPanel pnlInfo, JPanel pnlName,
+			JPanel pnlProperties) {
+		pnlAction.doLayout();
+        pnlInfo.doLayout();
+        pnlName.doLayout();
+        pnlProperties.doLayout();
+        this.doLayout();
+	}
+
+	private void initPnlAction(JPanel pnlAction) {
+		pnlAction.setLayout(new GridLayout(3, 3));
+        pnlAction.add(btnBuyHouse);
+        pnlAction.add(btnRollDice);
+        pnlAction.add(btnPurchaseProperty);
+        pnlAction.add(btnGetOutOfJail);
+        pnlAction.add(btnEndTurn);
+        pnlAction.add(btnDrawCard);
+        pnlAction.add(btnTrade);
+	}
+
+	private void initPnlProperties(JPanel pnlProperties) {
+		pnlProperties.setLayout(new OverlayLayout(pnlProperties));
+
+        
+        pnlProperties.add(txtProperty);
+	}
+
+	private void initPnlName(JPanel pnlName) {
+		pnlName.add(lblName);
+        pnlName.add(lblMoney);
+	}
+
+	private void initPnlInfo(JPanel pnlInfo, JPanel pnlName,
+			JPanel pnlProperties) {
+		pnlInfo.setLayout(new BorderLayout());
+        pnlInfo.add(pnlName, BorderLayout.NORTH);
+        pnlInfo.add(pnlProperties, BorderLayout.CENTER);
+	}
+
+	private void initTxtProperty() {
+		txtProperty = new JTextArea(30, 70);
+
+        txtProperty.setEnabled(false);
+	}
+
+	private void initLabel() {
+		lblName = new JLabel();
+        lblMoney = new JLabel();
+	}
+
+	private void initBtn() {
+		btnRollDice = new JButton("Roll Dice");
+        btnPurchaseProperty = new JButton("Purchase Property");
+        btnEndTurn = new JButton("End Turn");
+        btnBuyHouse = new JButton("Buy House");
+        btnGetOutOfJail = new JButton("Get Out of Jail");
+        btnDrawCard = new JButton("Draw Card");
+        btnTrade = new JButton("Trade");
+	}
 
     public void displayInfo() {
         lblName.setText(player.getName());
