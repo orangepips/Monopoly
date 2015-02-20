@@ -8,11 +8,7 @@ public class RRCellInfoFormatter extends OwnedCellInfoFormatter {
     public String format(Cell cell) {
         OwnedCell c = (OwnedCell)cell;
         StringBuffer buf = new StringBuffer();
-        Player owner = ((OwnedCell) cell).getOwner();
-        String ownerName = "";
-        if(owner != null) {
-        	ownerName = owner.getName();
-        }
+        String ownerName = getOwnerName(cell);
         buf.append("<html><b><font color='lime'>")
                 .append(cell.getName())
                 .append("</font></b><br>")
@@ -21,4 +17,5 @@ public class RRCellInfoFormatter extends OwnedCellInfoFormatter {
                 .append("</html>");
         return buf.toString();
     }
+
 }

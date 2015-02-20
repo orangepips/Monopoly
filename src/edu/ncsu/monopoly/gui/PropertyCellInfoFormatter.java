@@ -1,19 +1,13 @@
 package edu.ncsu.monopoly.gui;
 
 import edu.ncsu.monopoly.Cell;
-import edu.ncsu.monopoly.OwnedCell;
-import edu.ncsu.monopoly.Player;
 import edu.ncsu.monopoly.PropertyCell;
 
 public class PropertyCellInfoFormatter extends OwnedCellInfoFormatter {
     public String format(Cell cell) {
         PropertyCell c = (PropertyCell)cell;
         StringBuffer buf = new StringBuffer();
-        Player owner = ((OwnedCell) cell).getOwner();
-        String ownerName = "";
-        if(owner != null) {
-        	ownerName = owner.getName();
-        }
+        String ownerName = getOwnerName(cell);
         buf.append("<html><b><font color='")
                 .append(c.getColorGroup())
                 .append("'>")

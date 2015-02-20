@@ -10,11 +10,7 @@ public class UtilCellInfoFormatter extends OwnedCellInfoFormatter {
 	public String format(Cell cell) {
         UtilityCell c = (UtilityCell)cell;
         StringBuffer buf = new StringBuffer();
-        Player owner = ((OwnedCell) cell).getOwner();
-        String ownerName = "";
-        if(owner != null) {
-        	ownerName = owner.getName();
-        }
+        String ownerName = getOwnerName(cell);
         buf.append("<html><b><font color='olive'>")
                 .append(cell.getName())
                 .append("</font></b><br>")
@@ -23,4 +19,5 @@ public class UtilCellInfoFormatter extends OwnedCellInfoFormatter {
                 .append("</html>");
         return buf.toString();
 	}
+
 }
