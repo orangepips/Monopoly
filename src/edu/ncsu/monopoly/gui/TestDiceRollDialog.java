@@ -29,16 +29,20 @@ public class TestDiceRollDialog extends JDialog {
         setModal(true);
              
         Container contentPane = getContentPane();
-        contentPane.setLayout(new GridLayout(2, 2));
-        contentPane.add(new JLabel("Amount"));
-        contentPane.add(txtDiceRoll);
-        contentPane.add(btnOK);
-        contentPane.add(btnCancel);
+        initContentPane(contentPane);
         
         btnListeners();
         
         this.pack();
     }
+
+	private void initContentPane(Container contentPane) {
+		contentPane.setLayout(new GridLayout(2, 2));
+        contentPane.add(new JLabel("Amount"));
+        contentPane.add(txtDiceRoll);
+        contentPane.add(btnOK);
+        contentPane.add(btnCancel);
+	}
 
 	private void btnListeners() {
 		btnCancel.addActionListener(new ActionListener(){
