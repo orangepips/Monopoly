@@ -22,19 +22,19 @@ public class TestDiceRollDialog extends JDialog {
         super(parent);
         
         setTitle("Dice Roll Dialog");
-        txtDiceRoll = new JTextField(2);
-        btnOK = new JButton("OK");
-        btnCancel = new JButton("Cancel");
-        
+        initUIComponent();
         setModal(true);
-             
         Container contentPane = getContentPane();
         initContentPane(contentPane);
-        
         btnListeners();
-        
         this.pack();
     }
+
+	private void initUIComponent() {
+		txtDiceRoll = new JTextField(2);
+        btnOK = new JButton("OK");
+        btnCancel = new JButton("Cancel");
+	}
 
 	private void initContentPane(Container contentPane) {
 		contentPane.setLayout(new GridLayout(2, 2));

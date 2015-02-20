@@ -1,6 +1,6 @@
 package edu.ncsu.monopoly;
 
-public abstract class Cell implements IOwnable {
+public abstract class Cell {
 	private String name;
 	public String getName() {
 		return name;

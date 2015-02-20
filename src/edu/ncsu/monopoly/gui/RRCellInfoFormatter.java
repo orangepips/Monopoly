@@ -4,11 +4,11 @@ import edu.ncsu.monopoly.Cell;
 import edu.ncsu.monopoly.OwnedCell;
 import edu.ncsu.monopoly.Player;
 
-public class RRCellInfoFormatter implements CellInfoFormatter {
+public class RRCellInfoFormatter extends OwnedCellInfoFormatter {
     public String format(Cell cell) {
         OwnedCell c = (OwnedCell)cell;
         StringBuffer buf = new StringBuffer();
-        Player owner = cell.getOwner();
+        Player owner = ((OwnedCell) cell).getOwner();
         String ownerName = "";
         if(owner != null) {
         	ownerName = owner.getName();

@@ -14,16 +14,4 @@ public class CardCell extends Cell {
     public int getType() {
         return type;
     }
-
-	@Override
-	public Player getOwner() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setOwner(Player owner) {
-		// TODO Auto-generated method stub
-		
-	}
 }
