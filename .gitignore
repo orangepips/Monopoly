@@ -1,14 +1,2 @@
-
-*.class
-
-
-
-bin/edu/ncsu/monopoly/GameMaster.class
-
-*.class
-
-bin/edu/ncsu/monopoly/UtilityCell.class
-
-bin/edu/ncsu/monopoly/RailRoadCell.class
-
-bin/edu/ncsu/monopoly/PropertyCell.class
+.idea/
+*.iml
