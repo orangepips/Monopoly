@@ -4,19 +4,45 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-
+/**
+ * <p></p>Monopoly player representation that keeps track of the following:</p>
+ * <ul>
+ *     <li>Position on the playing board including in Jail status.</li>
+ *     <li>Money in hand</li>
+ *     <li>Properties owned</li>
+ * </ul>
+ */
 public class Player {
 	//the key of colorGroups is the name of the color group.
 	private Hashtable colorGroups = new Hashtable();
+
+	/**
+	 * True if the player is in jail.
+     */
 	private boolean inJail;
+
+	/**
+	 * Amount of money in player's hand.
+     */
 	private int money;
+
+	/**
+	 * Player name displayed in the GUI. Collected at the start of the program.
+     */
 	private String name;
 
+	/**
+	 * Player position on the game board.
+     */
 	private Cell position;
+
 	private ArrayList properties = new ArrayList();
 	private ArrayList railroads = new ArrayList();
 	private ArrayList utilities = new ArrayList();
-	
+
+	/**
+	 * Constructor. Places the player on the "Go" (i.e. start) cell of the game board.
+     */
 	public Player() {
 		GameBoard gb = GameMaster.instance().getGameBoard();
 		inJail = false;
@@ -25,7 +51,7 @@ public class Player {
 		}
 	}
 
-    public void buyProperty(IOwnable property, int amount) {
+	public void buyProperty(IOwnable property, int amount) {
         property.setOwner(this);
         verifyPurchaseProperty(property);
         setMoney(getMoney() - amount);
@@ -53,7 +79,10 @@ public class Player {
         }
 	}
 
-	
+	/**
+	 * True if the player is allowed to buy houses. Does not check relative to the propert(ies) being considered.
+ 	 * @return False if the player does not own any monopolies.
+     */
 	public boolean canBuyHouse() {
 		return (getMonopolies().length != 0);
 	}
