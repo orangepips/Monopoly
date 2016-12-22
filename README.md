@@ -9,7 +9,13 @@ Goal of the exercise is refactoring [Player.java](src/main/java/edu/ncsu.monopol
 To accomplish this the I did the following: 
 
  1. Maven-ize the project including migration of all *Test classes to a separate src/test/java subdirectory structure.
- 1. Refactor to pull out property related algorithms into a separate class 
+ 1. Refactorings 
+   1. http://refactoring.com/catalog/replaceNestedConditionalWithGuardClauses.html
+   1. Made public methods package when only used by unit tests. 
+   1. Inline privates methods with a single caller. 
+   1. Reorganize variables and methods by access public, package, private  
+   1. Return immutable or deep copies of collections where appropriate - and document as such
+ 1. I thought about null checking. This is a bit of a holy war with the inactive JSR-305 and Java 8's `Optional` class. Read world I would incoprorate something after sussing through with a team, but didn't want to get too caught in the weeds here. 
  1. Add data validation and null checking to method parameters.
  1. Return immutable or deep copies of collections where appropriate and document accordingly. 
  1. Incorporate (real world would probably do this via a parent pom.xml) 

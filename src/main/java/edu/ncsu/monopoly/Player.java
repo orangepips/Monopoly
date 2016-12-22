@@ -2,10 +2,8 @@ package edu.ncsu.monopoly;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Hashtable;
-
-// TODO: null checks
-// TODO: bounds checks
 
 /**
  * <p><Monopoly player representation that keeps track of the following:</p>
@@ -15,12 +13,19 @@ import java.util.Hashtable;
  * <li>Properties owned</li>
  * </ul>
  */
-@SuppressWarnings("checkstyle:")
 public class Player {
     /**
      * Maximum number of houses allowed for a monopoly
      */
     public static final int MAX_MONOPOLY_HOUSES = 5;
+
+    /**
+     * Set of color values representing {@link Cell} implementations that are not {@link PropertyCell}
+     */
+    private static final HashSet<String> NON_PROPERTY_COLORS = new HashSet<String>() {{
+        add(RailRoadCell.COLOR_GROUP);
+        add(UtilityCell.COLOR_GROUP);
+    }};
 
     /**
      * The key of colorGroups is the name of the color group.
@@ -86,79 +91,12 @@ public class Player {
     }
 
     /**
-     * Evaluates class type of passed property and tracks player as the owner.
-     *
-     * @param property property to assign to this player
-     */
-    private void verifyPurchaseProperty(final IOwnable property) {
-        if (property instanceof UtilityCell) {
-            utilities.add(property);
-            colorGroups.put(
-                    UtilityCell.COLOR_GROUP,
-                    new Integer(getPropertyNumberForColor(UtilityCell.COLOR_GROUP) + 1));
-        }
-        if (property instanceof RailRoadCell) {
-            railroads.add(property);
-            colorGroups.put(
-                    RailRoadCell.COLOR_GROUP,
-                    new Integer(getPropertyNumberForColor(RailRoadCell.COLOR_GROUP) + 1));
-        }
-        if (property instanceof PropertyCell) {
-            PropertyCell cell = (PropertyCell) property;
-            properties.add(cell);
-            colorGroups.put(
-                    cell.getColorGroup(),
-                    new Integer(getPropertyNumberForColor(cell.getColorGroup()) + 1));
-        }
-    }
-
-    /**
      * True if the player is allowed to buy houses. Does not check relative to the propert(ies) being considered.
      *
      * @return False if the player does not own any monopolies.
      */
     public boolean canBuyHouse() {
         return getMonopolies().length != 0;
-    }
-
-    /**
-     * Ensures named property belongs to this Player.
-     *
-     * @param property name of property to check ownership of
-     * @return True if player owns this property
-     */
-    public boolean checkProperty(final String property) {
-        for (int i = 0; i < properties.size(); i++) {
-            Cell cell = (Cell) properties.get(i);
-            if (cell.getName().equals(property)) {
-                return true;
-            }
-        }
-        return false;
-
-    }
-
-    /**
-     * Change ownership of all this player's properties to another player.
-     * If passed player is null assign all
-     *
-     * @param player player assuming ownership of this player's properties.
-     */
-    public void exchangeProperty(final Player player) {
-        for (int i = 0; i < getPropertyNumber(); i++) {
-            PropertyCell cell = getProperty(i);
-            cell.setOwner(player);
-            if (player == null) {
-                cell.setAvailable(true);
-                cell.setNumHouses(0);
-            } else {
-                player.properties.add(cell);
-                colorGroups.put(
-                        cell.getColorGroup(),
-                        new Integer(getPropertyNumberForColor(cell.getColorGroup()) + 1));
-            }
-        }
-        properties.clear();
     }
 
     /**
@@ -184,6 +122,15 @@ public class Player {
     }
 
     /**
+     * Set how much money player has.
+     *
+     * @param money money in player's possession.
+     */
+    public void setMoney(final int money) {
+        this.money = money;
+    }
+
+    /**
      * All player owned monopolies.
      *
      * @return array of player owned monopolies
@@ -193,25 +140,16 @@ public class Player {
         Enumeration colors = colorGroups.keys();
         while (colors.hasMoreElements()) {
             String color = (String) colors.nextElement();
-            if (isPropertyCell(color)) {
-                Integer num = (Integer) colorGroups.get(color);
-                GameBoard gameBoard = GameMaster.instance().getGameBoard();
-                if (num.intValue() == gameBoard.getPropertyNumberForColor(color)) {
-                    monopolies.add(color);
-                }
+
+            if (NON_PROPERTY_COLORS.contains(color)) continue;
+
+            Integer num = (Integer) colorGroups.get(color);
+            GameBoard gameBoard = GameMaster.instance().getGameBoard();
+            if (num.intValue() == gameBoard.getPropertyNumberForColor(color)) {
+                monopolies.add(color);
             }
         }
         return (String[]) monopolies.toArray(new String[monopolies.size()]);
-    }
-
-    /**
-     * Is the specified color for a property
-     *
-     * @param color value to check is a property color
-     * @return True if not a Railroad or Utility
-     */
-    private boolean isPropertyCell(final String color) {
-        return !(color.equals(RailRoadCell.COLOR_GROUP)) && !(color.equals(UtilityCell.COLOR_GROUP));
     }
 
     /**
@@ -221,6 +159,15 @@ public class Player {
      */
     public String getName() {
         return name;
+    }
+
+    /**
+     * Set player screen name.
+     *
+     * @param name screen name
+     */
+    public void setName(final String name) {
+        this.name = name;
     }
 
     /**
@@ -247,37 +194,12 @@ public class Player {
     }
 
     /**
-     * Returns the property object for an associated ordinal.
-     * // TODO: not bounds checked
+     * Set player position on the gameboard.
      *
-     * @param index the ordinal of an associated property
-     * @return property associated with the passed ordinal
+     * @param newPosition player position on the gameboard
      */
-    public PropertyCell getProperty(final int index) {
-        return (PropertyCell) properties.get(index);
-    }
-
-    /**
-     * Number of properties in player's possession.
-     *
-     * @return count of player owned properties properties
-     */
-    public int getPropertyNumber() {
-        return properties.size();
-    }
-
-    /**
-     * Number of properties player owns for a passed name.
-     *
-     * @param name either a color, utility or railroad to count ownership of
-     * @return count of properties owned for that name. Zero if none.
-     */
-    private int getPropertyNumberForColor(final String name) {
-        Integer number = (Integer) colorGroups.get(name);
-        if (number != null) {
-            return number.intValue();
-        }
-        return 0;
+    public void setPosition(final Cell newPosition) {
+        this.position = newPosition;
     }
 
     /**
@@ -296,6 +218,15 @@ public class Player {
      */
     public boolean isInJail() {
         return inJail;
+    }
+
+    /**
+     * Set if player is in jail.
+     *
+     * @param inJail True if player is in jail.
+     */
+    public void setInJail(final boolean inJail) {
+        this.inJail = inJail;
     }
 
     /**
@@ -338,7 +269,7 @@ public class Player {
     }
 
     /**
-     * Purchase the property at the player's current position if it is for sale.
+     * Purchase the cell at the player's current position if it can be purchased.
      */
     public void purchase() {
         if (!(getPosition() instanceof OwnedCell) || !((OwnedCell) getPosition()).isAvailable()) {
@@ -353,98 +284,34 @@ public class Player {
     }
 
     /**
-     * If passed cell is a utility purchase.
-     * @param c cell to check as a utility and purchase if so
-     */
-    private void isUtilityCell(final Cell c) {
-        if (c instanceof UtilityCell) {
-            UtilityCell cell = (UtilityCell) c;
-            purchaseUtility(cell);
-        }
-    }
-
-    /**
-     * If passed cell is a railroad purchase.
-     * @param c cell to check as a railroad and purchase if so
-     */
-    private void isRailRoadCell(final Cell c) {
-        if (c instanceof RailRoadCell) {
-            OwnedCell cell = (OwnedCell) c;
-            purchaseRailRoad(cell);
-        }
-    }
-
-    /**
-     * If passed cell is a property purchase.
-     * @param c cell to check as a property and purchase if so
-     */
-    private void isPropertyCell(final Cell c) {
-        if (c instanceof PropertyCell) {
-            PropertyCell cell = (PropertyCell) c;
-            purchaseProperty(cell);
-        }
-    }
-
-    /**
      * Purchase a specified number of houses for a monopoly of a given color if money available.
-     * Allows no more than 5 house purchases for the monopoly.
+     * Allows no more than {@link #MAX_MONOPOLY_HOUSES} house purchases for the monopoly.
+     *
      * @param selectedMonopoly color of the properties to buy houses for
-     * @param houses number of houses to buy
+     * @param houses           number of houses to buy
      */
     public void purchaseHouse(final String selectedMonopoly, final int houses) {
-        GameBoard gb = GameMaster.instance().getGameBoard();
-        PropertyCell[] cells = gb.getPropertiesInMonopoly(selectedMonopoly);
-        if (hasMoney(houses, cells)) {
-            for (int i = 0; i < cells.length; i++) {
-                int newNumber = cells[i].getNumHouses() + houses;
-                if (newNumber <= MAX_MONOPOLY_HOUSES) {
-                    cells[i].setNumHouses(newNumber);
-                    this.setMoney(money - cells[i].getHousePrice() * houses);
-                    GameMaster.instance().updateGUI();
-                }
-            }
+        PropertyCell[] cells = GameMaster.instance().getGameBoard().getPropertiesInMonopoly(selectedMonopoly);
+
+        boolean doesNotHaveEnoughMoney = !(money >= (cells.length * (cells[0].getHousePrice() * houses)));
+        if (doesNotHaveEnoughMoney) return;
+
+        for (int i = 0; i < cells.length; i++) {
+            int newNumber = cells[i].getNumHouses() + houses;
+
+            if (newNumber > MAX_MONOPOLY_HOUSES) continue;
+
+            cells[i].setNumHouses(newNumber);
+            this.setMoney(money - cells[i].getHousePrice() * houses);
+            GameMaster.instance().updateGUI();
         }
-    }
-
-    /**
-     * Check to ensure player has enough money relative to the number of properties, cost per house
-     * and houses to purchase.
-     * @param houses number of houses to purchase
-     * @param cells properties to purchase houses for
-     * @return True if player has enough money to buy all the houses desired for the specified properties
-     */
-    private boolean hasMoney(final int houses, final PropertyCell[] cells) {
-        return money >= (cells.length * (cells[0].getHousePrice() * houses));
-    }
-
-    /**
-     * Assign ownership of the passed property to the player for the associated price.
-     * @param cell property to purchase.
-     */
-    private void purchaseProperty(final PropertyCell cell) {
-        buyProperty(cell, cell.getPrice());
-    }
-
-    /**
-     * Assign ownership of the passed railroad to the player for the associated price.
-     * @param cell railroad to purchase.
-     */
-    private void purchaseRailRoad(final OwnedCell cell) {
-        buyProperty(cell, cell.getPrice());
-    }
-
-    /**
-     * Assign ownership of the passed utility to the player for the associated price.
-     * @param cell utility to purchase.
-     */
-    private void purchaseUtility(final UtilityCell cell) {
-        buyProperty(cell, cell.getPrice());
     }
 
     /**
      * Sell property back to the bank for the specified amount. Remove player as the owner.
+     *
      * @param property property to sell to the bank
-     * @param amount money to credit player
+     * @param amount   money to credit player
      */
     public void sellProperty(final IOwnable property, final int amount) {
         property.setOwner(null);
@@ -461,39 +328,8 @@ public class Player {
     }
 
     /**
-     * Set if player is in jail.
-     * @param inJail True if player is in jail.
-     */
-    public void setInJail(final boolean inJail) {
-        this.inJail = inJail;
-    }
-
-    /**
-     * Set how much money player has.
-     * @param money money in player's possession.
-     */
-    public void setMoney(final int money) {
-        this.money = money;
-    }
-
-    /**
-     * Set player screen name.
-     * @param name screen name
-     */
-    public void setName(final String name) {
-        this.name = name;
-    }
-
-    /**
-     * Set player position on the gameboard.
-     * @param newPosition player position on the gameboard
-     */
-    public void setPosition(final Cell newPosition) {
-        this.position = newPosition;
-    }
-
-    /**
      * Equivalent to the player's name.
+     *
      * @return player name.
      */
     public String toString() {
@@ -501,13 +337,147 @@ public class Player {
     }
 
     /**
+     * Ensures named property belongs to this Player.
+     *
+     * @param property name of property to check ownership of
+     * @return True if player owns this property
+     */
+    boolean checkProperty(final String property) {
+        for (int i = 0; i < properties.size(); i++) {
+            Cell cell = (Cell) properties.get(i);
+            if (cell.getName().equals(property)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Change ownership of all this player's properties to parameter player .
+     * If parameter player is null, set all properties as available and houses from them.
+     *
+     * @param player player assuming ownership of this player's properties.
+     */
+    void exchangeProperty(final Player player) {
+        for (int i = 0; i < getPropertyNumber(); i++) {
+            PropertyCell cell = getProperty(i);
+            cell.setOwner(player);
+            if (player == null) {
+                cell.setAvailable(true);
+                cell.setNumHouses(0);
+            } else {
+                player.properties.add(cell);
+                colorGroups.put(
+                        cell.getColorGroup(),
+                        new Integer(getPropertyNumberForColor(cell.getColorGroup()) + 1));
+            }
+        }
+        properties.clear();
+    }
+
+    /**
+     * Returns the property object for an associated ordinal.
+     *
+     * @param index the ordinal of an associated property
+     * @return property associated with the passed ordinal
+     */
+    PropertyCell getProperty(final int index) {
+        return (PropertyCell) properties.get(index);
+    }
+
+    /**
+     * Number of properties in player's possession.
+     *
+     * @return count of player owned properties properties
+     */
+    int getPropertyNumber() {
+        return properties.size();
+    }
+
+    /**
      * Clear tracking of all player properties, railroads and utilities.
      */
-    public void resetProperty() {
+    void resetProperty() {
         properties = new ArrayList();
         railroads = new ArrayList();
         utilities = new ArrayList();
     }
 
-    // TODO: hash code, equals and compareTo
+    /**
+     * Number of properties player owns for a passed name.
+     *
+     * @param name either a color, utility or railroad to count ownership of
+     * @return count of properties owned for that name. Zero if none.
+     */
+    private int getPropertyNumberForColor(final String name) {
+        Integer number = (Integer) colorGroups.get(name);
+        if (number != null) {
+            return number.intValue();
+        }
+        return 0;
+    }
+
+    /**
+     * If passed cell is a property purchase.
+     *
+     * @param c cell to check as a property and purchase if so
+     */
+    private void isPropertyCell(final Cell c) {
+        if (!(c instanceof PropertyCell)) return;
+
+        PropertyCell cell = (PropertyCell) c;
+        buyProperty(cell, cell.getPrice());
+    }
+
+    /**
+     * If passed cell is a railroad purchase.
+     *
+     * @param c cell to check as a railroad and purchase if so
+     */
+    private void isRailRoadCell(final Cell c) {
+        if (!(c instanceof RailRoadCell)) return;
+
+        OwnedCell cell = (OwnedCell) c;
+        buyProperty(cell, cell.getPrice());
+    }
+
+    /**
+     * If passed cell is a utility purchase.
+     *
+     * @param c cell to check as a utility and purchase if so
+     */
+    private void isUtilityCell(final Cell c) {
+        if (!(c instanceof UtilityCell)) return;
+
+        UtilityCell cell = (UtilityCell) c;
+        buyProperty(cell, cell.getPrice());
+    }
+
+    /**
+     * Evaluates class type of passed property and tracks player as the owner.
+     *
+     * @param property property to assign to this player
+     */
+    private void verifyPurchaseProperty(final IOwnable property) {
+        if (property instanceof UtilityCell) {
+            utilities.add(property);
+            colorGroups.put(
+                    UtilityCell.COLOR_GROUP,
+                    new Integer(getPropertyNumberForColor(UtilityCell.COLOR_GROUP) + 1));
+        }
+        if (property instanceof RailRoadCell) {
+            railroads.add(property);
+            colorGroups.put(
+                    RailRoadCell.COLOR_GROUP,
+                    new Integer(getPropertyNumberForColor(RailRoadCell.COLOR_GROUP) + 1));
+        }
+        if (property instanceof PropertyCell) {
+            PropertyCell cell = (PropertyCell) property;
+            properties.add(cell);
+            colorGroups.put(
+                    cell.getColorGroup(),
+                    new Integer(getPropertyNumberForColor(cell.getColorGroup()) + 1));
+        }
+    }
+
 }
