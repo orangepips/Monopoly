@@ -1,16 +1,18 @@
 package edu.ncsu.monopoly;
 
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Hashtable;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import java.util.*;
 
 /**
- * <p><Monopoly player representation that keeps track of the following:</p>
+ * <p><Monopoly player representation to manage and track of the following:</p>
  * <ul>
- * <li>Position on the playing board including in Jail status.</li>
- * <li>Money in hand</li>
- * <li>Properties owned</li>
+ *  <li>Position on the playing board including {@link #getPosition()}</li>
+ *  <li>Money in hand {@link #getMoney()} and bankruptcy {@link #isBankrupt()}</li>
+ *  <li>In jail status {@link #isInJail()}</li>
+ *  <li>Cells - properties, railroads and utilities - owned {@link #getAllProperties()}</li>
  * </ul>
  */
 public class Player {
@@ -55,17 +57,17 @@ public class Player {
     /**
      * All properties that can take houses owned by player.
      */
-    private ArrayList properties = new ArrayList();
+    private ArrayList<PropertyCell> properties = new ArrayList<PropertyCell>();
 
     /**
      * All railroads owned by player.
      */
-    private ArrayList railroads = new ArrayList();
+    private ArrayList<RailRoadCell> railroads = new ArrayList<RailRoadCell>();
 
     /**
      * All utilities owned by player.
      */
-    private ArrayList utilities = new ArrayList();
+    private ArrayList<UtilityCell> utilities = new ArrayList<UtilityCell>();
 
     /**
      * Constructor. Places the player on the "Go" (i.e. start) cell of the game board.
@@ -86,7 +88,7 @@ public class Player {
      */
     public void buyProperty(final IOwnable property, final int amount) {
         property.setOwner(this);
-        verifyPurchaseProperty(property);
+        OwnedCellHelper.getHelperForClass(property.getClass()).buy(this, property);
         setMoney(getMoney() - amount);
     }
 
@@ -97,6 +99,18 @@ public class Player {
      */
     public boolean canBuyHouse() {
         return getMonopolies().length != 0;
+    }
+
+    /**
+     * Equality determined using reflection via
+     * {@link org.apache.commons.lang3.builder.EqualsBuilder#reflectionEquals(Object, Object, String...)}.
+     *
+     * @param o object to test equality against
+     * @return True if same class and all reflected instance variables are equal
+     */
+    @Override
+    public boolean equals(Object o) {
+        return EqualsBuilder.reflectionEquals(this, o);
     }
 
     /**
@@ -203,6 +217,17 @@ public class Player {
     }
 
     /**
+     * Hash code generated via
+     * {@link org.apache.commons.lang3.builder.HashCodeBuilder#reflectionHashCode(Object, String...)}.
+     *
+     * @return hash code value based on reflection of instance variables
+     */
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
+
+    /**
      * Is the player bankrupt?
      *
      * @return True if money is less than or equal to zero.
@@ -276,11 +301,9 @@ public class Player {
             return;
         }
 
-        Cell c = getPosition();
-        ((OwnedCell) c).setAvailable(false);
-        isPropertyCell(c);
-        isRailRoadCell(c);
-        isUtilityCell(c);
+        OwnedCell c = (OwnedCell) getPosition();
+        c.setAvailable(false);
+        buyProperty(c, c.getPrice());
     }
 
     /**
@@ -315,29 +338,23 @@ public class Player {
      */
     public void sellProperty(final IOwnable property, final int amount) {
         property.setOwner(null);
-        if (property instanceof PropertyCell) {
-            properties.remove(property);
-        }
-        if (property instanceof RailRoadCell) {
-            railroads.remove(property);
-        }
-        if (property instanceof UtilityCell) {
-            utilities.remove(property);
-        }
+        OwnedCellHelper.getHelperForClass(property.getClass()).sell(this, property);
         setMoney(getMoney() + amount);
     }
 
     /**
-     * Equivalent to the player's name.
+     * Returns the player name. Unfortunately, client has a hard dependency on this implementation as opposed to
+     * {@link #getName()}.
      *
      * @return player name.
      */
+    @Override
     public String toString() {
-        return name;
+        return getName();
     }
 
     /**
-     * Ensures named property belongs to this Player.
+     * Determines if named property belongs to this Player.
      *
      * @param property name of property to check ownership of
      * @return True if player owns this property
@@ -418,66 +435,141 @@ public class Player {
     }
 
     /**
-     * If passed cell is a property purchase.
+     * Reflection string representation of player using
+     * {@link org.apache.commons.lang3.builder.ToStringBuilder#reflectionToString(Object)}. Created because
+     * {@link #toString()} is being used for a specific purpose by a client.
      *
-     * @param c cell to check as a property and purchase if so
+     * @return reflection string representation of player
      */
-    private void isPropertyCell(final Cell c) {
-        if (!(c instanceof PropertyCell)) return;
-
-        PropertyCell cell = (PropertyCell) c;
-        buyProperty(cell, cell.getPrice());
+    private String getReflectionString() {
+        return ToStringBuilder.reflectionToString(this);
     }
 
     /**
-     * If passed cell is a railroad purchase.
-     *
-     * @param c cell to check as a railroad and purchase if so
+     * Utility to avoid the awkward instanceof declarations around {@link IOwnable}. Use
+     * {@link #getHelperForClass(Class)} to get an enum instance for delegated calls to {@link #buy(Player, IOwnable)}
+     * and {@link #sell(Player, IOwnable)}.
      */
-    private void isRailRoadCell(final Cell c) {
-        if (!(c instanceof RailRoadCell)) return;
+    private enum OwnedCellHelper {
+        /**
+         * Property specific helper.
+         */
+        PROPERTY(PropertyCell.class) {
+            @Override
+            void buy(Player player, IOwnable ownedCell) {
+                PropertyCell propertyCell = (PropertyCell) ownedCell;
+                player.properties.add(propertyCell);
+                OwnedCellHelper.incrementColorGroup(player, propertyCell.getColorGroup());
+            }
 
-        OwnedCell cell = (OwnedCell) c;
-        buyProperty(cell, cell.getPrice());
-    }
+            @Override
+            void sell(Player player, IOwnable ownedCell) {
+                player.properties.remove((PropertyCell) ownedCell);
+            }
+        },
 
-    /**
-     * If passed cell is a utility purchase.
-     *
-     * @param c cell to check as a utility and purchase if so
-     */
-    private void isUtilityCell(final Cell c) {
-        if (!(c instanceof UtilityCell)) return;
+        /**
+         * Railroad specific helper.
+         */
+        RAILROAD(RailRoadCell.class) {
+            @Override
+            void buy(Player player, IOwnable ownedCell) {
+                RailRoadCell railRoadCell = (RailRoadCell) ownedCell;
+                player.railroads.add(railRoadCell);
+                OwnedCellHelper.incrementColorGroup(player, RailRoadCell.COLOR_GROUP);
+            }
+            @Override
+            void sell(Player player, IOwnable ownedCell) {
+                player.railroads.remove((RailRoadCell) ownedCell);
+            }
+        },
 
-        UtilityCell cell = (UtilityCell) c;
-        buyProperty(cell, cell.getPrice());
-    }
+        /**
+         * Utility specific helper.
+         */
+        UTILITY(UtilityCell.class) {
+            @Override
+            void buy(Player player, IOwnable ownedCell) {
+                UtilityCell utilityCell = (UtilityCell) ownedCell;
+                player.utilities.add(utilityCell);
+                OwnedCellHelper.incrementColorGroup(player, UtilityCell.COLOR_GROUP);
+            }
+            @Override
+            void sell(Player player, IOwnable ownedCell) {
+                player.utilities.remove((UtilityCell) ownedCell);
+            }
+        };
 
-    /**
-     * Evaluates class type of passed property and tracks player as the owner.
-     *
-     * @param property property to assign to this player
-     */
-    private void verifyPurchaseProperty(final IOwnable property) {
-        if (property instanceof UtilityCell) {
-            utilities.add(property);
-            colorGroups.put(
-                    UtilityCell.COLOR_GROUP,
-                    new Integer(getPropertyNumberForColor(UtilityCell.COLOR_GROUP) + 1));
+        /**
+         * Lookup of class to enum.
+         */
+        private static HashMap<Class, OwnedCellHelper> CLASS_TO_ENUM = new HashMap<Class, OwnedCellHelper>(){{
+            for (OwnedCellHelper ownedCellHelper: OwnedCellHelper.values()) {
+                CLASS_TO_ENUM.put(ownedCellHelper.getOwnedCellHelperClass(), ownedCellHelper);
+            }
+        }};
+
+        /**
+         * {@link Cell} subclass definition this enum is being used for
+         */
+        private Class ownedCellClass;
+
+        /**
+         * Constructor for enum meant to facilitate {@link #buy(Player, IOwnable)} and {@link #sell(Player, IOwnable)}
+         * actions for {@link OwnedCell}s.
+         *
+         * @param ownedCellClass class this enum is for
+         */
+        OwnedCellHelper(Class ownedCellClass) {
+            this.ownedCellClass = ownedCellClass;
         }
-        if (property instanceof RailRoadCell) {
-            railroads.add(property);
-            colorGroups.put(
-                    RailRoadCell.COLOR_GROUP,
-                    new Integer(getPropertyNumberForColor(RailRoadCell.COLOR_GROUP) + 1));
+
+        /**
+         * Lookup enum for specific class
+         * @param ownedCellClass class definition to retrieve an enum for
+         * @return enum for the passed class - null if not present
+         */
+        static OwnedCellHelper getHelperForClass(Class ownedCellClass) {
+            return CLASS_TO_ENUM.get(ownedCellClass);
         }
-        if (property instanceof PropertyCell) {
-            PropertyCell cell = (PropertyCell) property;
-            properties.add(cell);
-            colorGroups.put(
-                    cell.getColorGroup(),
-                    new Integer(getPropertyNumberForColor(cell.getColorGroup()) + 1));
+
+        /**
+         * Increase count for a specific color group by one for the passed player.
+         * @param player player to increment color group count for
+         * @param colorGroup color group to increment count by one
+         */
+        private static void incrementColorGroup(Player player, String colorGroup) {
+            player.colorGroups.put(
+                colorGroup,
+                new Integer(player.getPropertyNumberForColor(colorGroup) + 1)
+            );
+        }
+
+        /**
+         * Implementations add the passed ownedCell to a respective player tracking instance variable
+         * {@link #properties}, {@link #railroads} or {@link #utilities} and then call
+         * {@link #incrementColorGroup(Player, String)} to increment count.
+         *
+         * @param player player buying the passed ownedCell
+         * @param ownedCell cell player is purchasing.
+         */
+        abstract void buy(Player player, IOwnable ownedCell);
+
+        /**
+         * Implementations remove passed ownedCell from respective player tracking instance variable
+         * {@link #properties}, {@link #railroads} or {@link #utilities}.
+         *
+         * @param player player selling a cell
+         * @param ownedCell cell being sold
+         */
+        abstract void sell(Player player, IOwnable ownedCell);
+
+        /**
+         * Get the owned cell class this enum is for.
+         * @return the owned cell class this enum is for.
+         */
+        private Class getOwnedCellHelperClass() {
+            return ownedCellClass;
         }
     }
-
 }

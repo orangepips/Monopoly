@@ -51,8 +51,11 @@ public class PlayerTest extends TestCase {
 		gameMaster.movePlayer(0,3);
 		gameMaster.getCurrentPlayer().purchase();
 		gameMaster.btnEndTurnClicked();
+        assertEquals(0,gameMaster.getPlayer(1).getPropertyNumber());
+        assertEquals(1,gameMaster.getPlayer(0).getPropertyNumber());
 		gameMaster.getPlayer(0).exchangeProperty(gameMaster.getPlayer(1));
-		assertEquals(1,gameMaster.getCurrentPlayer().getPropertyNumber());
+		assertEquals(1,gameMaster.getPlayer(1).getPropertyNumber());
+		assertEquals(0,gameMaster.getPlayer(0).getPropertyNumber());
 	}
 	
 	public void testPurchaseHouse() {
