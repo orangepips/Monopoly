@@ -1,10 +1,14 @@
 package edu.ncsu.monopoly;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+
 
 /**
  * <p><Monopoly player representation to manage and track of the following:</p>
@@ -32,7 +36,7 @@ public class Player {
     /**
      * The key of colorGroups is the name of the color group.
      */
-    private Hashtable colorGroups = new Hashtable();
+    private HashMap<String, Integer> colorGroups = new HashMap<String, Integer>();
 
     /**
      * True if the player is in jail.
@@ -88,12 +92,12 @@ public class Player {
      */
     public void buyProperty(final IOwnable property, final int amount) {
         property.setOwner(this);
-        OwnedCellHelper.getHelperForClass(property.getClass()).buy(this, property);
+        OwnedCellHelper.getHelperForClass(property.getClass()).add(this, property);
         setMoney(getMoney() - amount);
     }
 
     /**
-     * True if the player is allowed to buy houses. Does not check relative to the propert(ies) being considered.
+     * True if the player is allowed to add houses. Does not check relative to the propert(ies) being considered.
      *
      * @return False if the player does not own any monopolies.
      */
@@ -150,20 +154,17 @@ public class Player {
      * @return array of player owned monopolies
      */
     public String[] getMonopolies() {
-        ArrayList monopolies = new ArrayList();
-        Enumeration colors = colorGroups.keys();
-        while (colors.hasMoreElements()) {
-            String color = (String) colors.nextElement();
-
+        ArrayList<String> monopolies = new ArrayList<String>();
+        for (String color: colorGroups.keySet()) {
             if (NON_PROPERTY_COLORS.contains(color)) continue;
 
-            Integer num = (Integer) colorGroups.get(color);
+            Integer num = colorGroups.get(color);
             GameBoard gameBoard = GameMaster.instance().getGameBoard();
             if (num.intValue() == gameBoard.getPropertyNumberForColor(color)) {
                 monopolies.add(color);
             }
         }
-        return (String[]) monopolies.toArray(new String[monopolies.size()]);
+        return monopolies.toArray(new String[monopolies.size()]);
     }
 
     /**
@@ -181,6 +182,9 @@ public class Player {
      * @param name screen name
      */
     public void setName(final String name) {
+        if (StringUtils.isBlank(name)) {
+            throw new IllegalArgumentException("Player name cannot be null or blank");
+        }
         this.name = name;
     }
 
@@ -260,7 +264,7 @@ public class Player {
      * @return number of railroads in player's posession.
      */
     public int numberOfRR() {
-        return getPropertyNumberForColor(RailRoadCell.COLOR_GROUP);
+        return getOwnedCellCountForColorGroup(RailRoadCell.COLOR_GROUP);
     }
 
     /**
@@ -269,7 +273,7 @@ public class Player {
      * @return number of utilities in player's posession.
      */
     public int numberOfUtil() {
-        return getPropertyNumberForColor(UtilityCell.COLOR_GROUP);
+        return getOwnedCellCountForColorGroup(UtilityCell.COLOR_GROUP);
     }
 
     /**
@@ -310,10 +314,13 @@ public class Player {
      * Purchase a specified number of houses for a monopoly of a given color if money available.
      * Allows no more than {@link #MAX_MONOPOLY_HOUSES} house purchases for the monopoly.
      *
-     * @param selectedMonopoly color of the properties to buy houses for
-     * @param houses           number of houses to buy
+     * @param selectedMonopoly color of the properties to add houses for
+     * @param houses           number of houses to add
      */
     public void purchaseHouse(final String selectedMonopoly, final int houses) {
+        if (StringUtils.isBlank(selectedMonopoly)) {
+            throw new IllegalArgumentException("House purchasing requires specifying a monopoly");
+        }
         PropertyCell[] cells = GameMaster.instance().getGameBoard().getPropertiesInMonopoly(selectedMonopoly);
 
         boolean doesNotHaveEnoughMoney = !(money >= (cells.length * (cells[0].getHousePrice() * houses)));
@@ -333,12 +340,12 @@ public class Player {
     /**
      * Sell property back to the bank for the specified amount. Remove player as the owner.
      *
-     * @param property property to sell to the bank
+     * @param property property to remove to the bank
      * @param amount   money to credit player
      */
     public void sellProperty(final IOwnable property, final int amount) {
         property.setOwner(null);
-        OwnedCellHelper.getHelperForClass(property.getClass()).sell(this, property);
+        OwnedCellHelper.getHelperForClass(property.getClass()).remove(this, property);
         setMoney(getMoney() + amount);
     }
 
@@ -361,7 +368,7 @@ public class Player {
      */
     boolean checkProperty(final String property) {
         for (int i = 0; i < properties.size(); i++) {
-            Cell cell = (Cell) properties.get(i);
+            Cell cell = properties.get(i);
             if (cell.getName().equals(property)) {
                 return true;
             }
@@ -379,14 +386,12 @@ public class Player {
         for (int i = 0; i < getPropertyNumber(); i++) {
             PropertyCell cell = getProperty(i);
             cell.setOwner(player);
+            OwnedCellHelper.PROPERTY.remove(this, cell);
             if (player == null) {
                 cell.setAvailable(true);
                 cell.setNumHouses(0);
             } else {
-                player.properties.add(cell);
-                colorGroups.put(
-                        cell.getColorGroup(),
-                        new Integer(getPropertyNumberForColor(cell.getColorGroup()) + 1));
+                OwnedCellHelper.PROPERTY.add(player, cell);
             }
         }
         properties.clear();
@@ -421,15 +426,15 @@ public class Player {
     }
 
     /**
-     * Number of properties player owns for a passed name.
+     * Number of properties player owns for a passed colorGroup.
      *
-     * @param name either a color, utility or railroad to count ownership of
-     * @return count of properties owned for that name. Zero if none.
+     * @param colorGroup either a color, utility or railroad to count ownership of
+     * @return count of properties owned for that colorGroup. Zero if none.
      */
-    private int getPropertyNumberForColor(final String name) {
-        Integer number = (Integer) colorGroups.get(name);
+    private int getOwnedCellCountForColorGroup(final String colorGroup) {
+        Integer number = colorGroups.get(colorGroup);
         if (number != null) {
-            return number.intValue();
+            return number;
         }
         return 0;
     }
@@ -447,24 +452,26 @@ public class Player {
 
     /**
      * Utility to avoid the awkward instanceof declarations around {@link IOwnable}. Use
-     * {@link #getHelperForClass(Class)} to get an enum instance for delegated calls to {@link #buy(Player, IOwnable)}
-     * and {@link #sell(Player, IOwnable)}.
+     * {@link #getHelperForClass(Class)} to get an enum instance for delegated calls to {@link #add(Player, IOwnable)}
+     * and {@link #remove(Player, IOwnable)}.
      */
-    private enum OwnedCellHelper {
+    enum OwnedCellHelper {
         /**
          * Property specific helper.
          */
         PROPERTY(PropertyCell.class) {
             @Override
-            void buy(Player player, IOwnable ownedCell) {
+            void add(Player player, IOwnable ownedCell) {
                 PropertyCell propertyCell = (PropertyCell) ownedCell;
                 player.properties.add(propertyCell);
                 OwnedCellHelper.incrementColorGroup(player, propertyCell.getColorGroup());
             }
 
             @Override
-            void sell(Player player, IOwnable ownedCell) {
-                player.properties.remove((PropertyCell) ownedCell);
+            void remove(Player player, IOwnable ownedCell) {
+                PropertyCell propertyCell = (PropertyCell) ownedCell;
+                player.properties.remove(propertyCell);
+                OwnedCellHelper.decrementColorGroup(player, propertyCell.getColorGroup());
             }
         },
 
@@ -473,14 +480,15 @@ public class Player {
          */
         RAILROAD(RailRoadCell.class) {
             @Override
-            void buy(Player player, IOwnable ownedCell) {
+            void add(Player player, IOwnable ownedCell) {
                 RailRoadCell railRoadCell = (RailRoadCell) ownedCell;
                 player.railroads.add(railRoadCell);
                 OwnedCellHelper.incrementColorGroup(player, RailRoadCell.COLOR_GROUP);
             }
             @Override
-            void sell(Player player, IOwnable ownedCell) {
+            void remove(Player player, IOwnable ownedCell) {
                 player.railroads.remove((RailRoadCell) ownedCell);
+                OwnedCellHelper.decrementColorGroup(player, RailRoadCell.COLOR_GROUP);
             }
         },
 
@@ -489,14 +497,15 @@ public class Player {
          */
         UTILITY(UtilityCell.class) {
             @Override
-            void buy(Player player, IOwnable ownedCell) {
+            void add(Player player, IOwnable ownedCell) {
                 UtilityCell utilityCell = (UtilityCell) ownedCell;
                 player.utilities.add(utilityCell);
                 OwnedCellHelper.incrementColorGroup(player, UtilityCell.COLOR_GROUP);
             }
             @Override
-            void sell(Player player, IOwnable ownedCell) {
+            void remove(Player player, IOwnable ownedCell) {
                 player.utilities.remove((UtilityCell) ownedCell);
+                OwnedCellHelper.decrementColorGroup(player, UtilityCell.COLOR_GROUP);
             }
         };
 
@@ -505,7 +514,7 @@ public class Player {
          */
         private static HashMap<Class, OwnedCellHelper> CLASS_TO_ENUM = new HashMap<Class, OwnedCellHelper>(){{
             for (OwnedCellHelper ownedCellHelper: OwnedCellHelper.values()) {
-                CLASS_TO_ENUM.put(ownedCellHelper.getOwnedCellHelperClass(), ownedCellHelper);
+                put(ownedCellHelper.getOwnedCellHelperClass(), ownedCellHelper);
             }
         }};
 
@@ -515,7 +524,7 @@ public class Player {
         private Class ownedCellClass;
 
         /**
-         * Constructor for enum meant to facilitate {@link #buy(Player, IOwnable)} and {@link #sell(Player, IOwnable)}
+         * Constructor for enum meant to facilitate {@link #add(Player, IOwnable)} and {@link #remove(Player, IOwnable)}
          * actions for {@link OwnedCell}s.
          *
          * @param ownedCellClass class this enum is for
@@ -533,6 +542,13 @@ public class Player {
             return CLASS_TO_ENUM.get(ownedCellClass);
         }
 
+        private static void decrementColorGroup(Player player, String colorGroup) {
+            player.colorGroups.put(
+                    colorGroup,
+                    player.getOwnedCellCountForColorGroup(colorGroup) - 1
+            );
+        }
+
         /**
          * Increase count for a specific color group by one for the passed player.
          * @param player player to increment color group count for
@@ -541,7 +557,7 @@ public class Player {
         private static void incrementColorGroup(Player player, String colorGroup) {
             player.colorGroups.put(
                 colorGroup,
-                new Integer(player.getPropertyNumberForColor(colorGroup) + 1)
+                player.getOwnedCellCountForColorGroup(colorGroup) + 1
             );
         }
 
@@ -553,7 +569,7 @@ public class Player {
          * @param player player buying the passed ownedCell
          * @param ownedCell cell player is purchasing.
          */
-        abstract void buy(Player player, IOwnable ownedCell);
+        abstract void add(Player player, IOwnable ownedCell);
 
         /**
          * Implementations remove passed ownedCell from respective player tracking instance variable
@@ -562,7 +578,7 @@ public class Player {
          * @param player player selling a cell
          * @param ownedCell cell being sold
          */
-        abstract void sell(Player player, IOwnable ownedCell);
+        abstract void remove(Player player, IOwnable ownedCell);
 
         /**
          * Get the owned cell class this enum is for.

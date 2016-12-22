@@ -73,8 +73,11 @@ public class PlayerTest extends TestCase {
 		gameMaster.getCurrentPlayer().purchaseHouse("blue",2);
 		assertEquals("blue", gameMaster.getCurrentPlayer().getMonopolies()[0]);
 		assertEquals(880, gameMaster.getCurrentPlayer().getMoney());
+
+        gameMaster.getCurrentPlayer().exchangeProperty(null);
+        assertTrue(gameMaster.getCurrentPlayer().getMonopolies().length == 0);
 	}
-	
+
 	public void testResetProperty() {
 		gameMaster.setNumberOfPlayers(1);
 		gameMaster.movePlayer(0,1);
